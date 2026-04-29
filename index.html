@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Sistem Ranking</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #111;
+  color: #eee;
+}
+
+header {
+  padding: 15px;
+  text-align: center;
+  background: #1a1a1a;
+}
+
+button {
+  background: #222;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin: 5px;
+  border-radius: 6px;
+}
+
+.container {
+  max-width: 500px;
+  margin: 20px auto;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #333;
+}
+
+input {
+  width: 100%;
+  margin: 5px 0;
+  padding: 8px;
+  background: #222;
+  border: none;
+  color: white;
+}
+
+.hidden {
+  display: none;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  SISTEM RANKING
+  <br>
+  <button onclick="showPage('home')">Ranking</button>
+  <button onclick="login()">Admin</button>
+</header>
+
+<div class="container">
+
+  <!-- HALAMAN RANKING -->
+  <div id="home">
+    <h3>Ranking Kelas</h3>
+    <div id="list"></div>
+  </div>
+
+  <!-- HALAMAN ADMIN -->
+  <div id="admin" class="hidden">
+    <h3>Panel Admin</h3>
+
+    <input id="name" placeholder="Nama">
+    <input id="score" type="number" placeholder="Score">
+    <button onclick="addData()">Tambah</button>
+
+    <div id="adminList"></div>
+  </div>
+
+</div>
+
+<script>
+let data = JSON.parse(localStorage.getItem("ranking")) || [
+  {name:"A", score:98},
+  {name:"B", score:95},
+  {name:"C", score:90}
+];
+
+function save() {
+  localStorage.setItem("ranking", JSON.stringify(data));
+}
+
+function render() {
+  data.sort((a,b)=>b.score-a.score);
+
+  let list = document.getElementById("list");
+  list.innerHTML = "";
+
+  data.forEach((d,i)=>{
+    list.innerHTML += `
+      <div class="item">
+        <span>#${i+1} ${d.name}</span>
+        <span>${d.score}</span>
+      </div>
+    `;
+  });
+}
+
+function renderAdmin() {
+  let list = document.getElementById("adminList");
+  list.innerHTML = "";
+
+  data.forEach((d,i)=>{
+    list.innerHTML += `
+      <div class="item">
+        <span>${d.name} (${d.score})</span>
+        <button onclick="hapus(${i})">Hapus</button>
+      </div>
+    `;
+  });
+}
+
+function addData() {
+  let name = document.getElementById("name").value;
+  let score = document.getElementById("score").value;
+
+  if(name && score){
+    data.push({name, score: parseInt(score)});
+    save();
+    render();
+    renderAdmin();
+  }
+}
+
+function hapus(i){
+  data.splice(i,1);
+  save();
+  render();
+  renderAdmin();
+}
+
+function showPage(p){
+  document.getElementById("home").classList.add("hidden");
+  document.getElementById("admin").classList.add("hidden");
+
+  document.getElementById(p).classList.remove("hidden");
+}
+
+function login(){
+  let pass = prompt("Masukkan password admin:");
+
+  if(pass === "1234"){
+    showPage("admin");
+    renderAdmin();
+  } else {
+    alert("Salah!");
+  }
+}
+
+render();
+</script>
+
+</body>
+  </html>
